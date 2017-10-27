@@ -12,15 +12,15 @@ import scala.xml.{Elem, NodeSeq}
 class Config {
 
 
-  def load(mail:NodeSeq,emailServer: EmailServer,configFile:File): Email ={
+  def load(mail:NodeSeq,emailServer: EmailServer,workDir:String): Email ={
     val from = (mail \ "from" text).trim
     val to = (mail \ "to" \ "p").toList.map(_.text.trim)
     val cc = (mail \ "cc" \ "p").toList.map(_.text.trim)
     val title = mail \ "title" text
     val body = mail \ "body" toString()
-    val attachments = (mail \ "attachments" \ "a" toList).map(a => new File(PathHelp.toAbsolutePath(configFile.getParent,a.text.trim).toString))
+    val attachments = (mail \ "attachments" \ "a" toList).map(a => new File(PathHelp.toAbsolutePath(workDir,a.text.trim).toString))
     val dataSource  = (mail \ "resuorces" \ "resource").map(r=>{
-      new EmailReSource(PathHelp.toAbsolutePath(configFile.getParent,(r \ "file").text.trim).toString,(r \ "id").text.trim)
+      new EmailReSource(PathHelp.toAbsolutePath(workDir,(r \ "file").text.trim).toString,(r \ "id").text.trim)
     }).toList
 
     val email = new Email(
@@ -47,6 +47,16 @@ class Config {
       .load(configFile.getPath)
 
     val emails: NodeSeq = config \ "emails"
+    load(emails: NodeSeq,configFile.getParent:String)
+  }
+
+  /**
+    *
+    * @param emails
+    * @param workPath work dir
+    */
+  def load(emails: NodeSeq,workPath:String): List[Email] ={
+
     if(emails.text.trim!="") {
       //mail
       val emailServer = emails \ "emailServer"
@@ -60,9 +70,8 @@ class Config {
         , port = port
         , new PasswordAuthentication(username, password))
 
-
       (emails \ "email").toList.map(mail => {
-        load(mail:NodeSeq,mailServer: EmailServer,configFile:File)
+        load(mail:NodeSeq,mailServer: EmailServer,workPath)
       })
     }else{
       List[Email]()
