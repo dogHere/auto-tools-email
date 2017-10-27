@@ -62,4 +62,6 @@ class Email(val emailMessage: EmailMessage, val emailServer: EmailServer) {
   }
 
   override def toString = s"SendEmail(emailMessage=$emailMessage, emailServer=$emailServer)"
+
+
 }
