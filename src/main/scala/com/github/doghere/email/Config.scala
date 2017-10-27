@@ -63,7 +63,14 @@ class Config {
       val server = (emailServer \ "server"  ).text.trim
       val port = (emailServer \ "port"  ).text.trim
       val username = (emailServer \ "username"  ).text.trim
-      val password = (emailServer \ "password"  ).text.trim
+      val password = {
+        val tp = (emailServer \ "password").text.trim
+        if(tp==""){
+          val emailConfig = scala.xml.XML.load(System.getProperty("user.home") + "/.dbconfig/email.xml")
+          (emailConfig \ "email").toList.filter(a=>(a \ "username").text.trim ==username).map(a=>(a \ "password").text).head
+        }else tp
+      }
+
 
       val mailServer = new EmailServer(
         server = server

@@ -14,4 +14,3 @@ class EmailMessage(val from: String
   override def toString = s"EmailMessage(from=$from, to=$to, cc=$cc, title=$title, body=$body, attachments=$attachments)"
 }
 
-class EmailReSource(val path:String,val id:String)
